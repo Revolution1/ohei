@@ -38,5 +38,5 @@ class Plugin(BasePlugin):
             'physical_cores': pc,
             'logical_cores': lc,
             'hyper_thread': lc > pc,
-            'cpus': cpus,
+            'cpus': cpus or 1,
         }

@@ -38,3 +38,13 @@ class NotAPlugin(Exception):
 class NotASource(Exception):
     def __str__(self):
         return 'Not a Source: %s.' % self.message
+
+
+class SourceNotExist(Exception):
+    def __init__(self, plugin, source):
+        self.plugin = plugin
+        self.source = source
+
+    def __str__(self):
+        return 'Required source not exist. Plugin: %s, Source: %s.' % \
+               (self.plugin, self.source)
