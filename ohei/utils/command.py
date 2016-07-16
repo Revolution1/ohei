@@ -6,7 +6,8 @@ from subprocess import Popen, PIPE
 def exec_cmd(cmd):
     if isinstance(cmd, str):
         cmd = shlex.split(cmd)
-    proc = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=True)
+    sh = True if len(cmd) == 1 else False
+    proc = Popen(cmd, stdout=PIPE, stderr=PIPE, shell=sh)
     out, err = proc.communicate()
     if proc.returncode == 0:
         return str(out).strip(), str(err).strip()
@@ -16,5 +17,6 @@ def exec_cmd(cmd):
 
 if __name__ == '__main__':
     pprint(exec_cmd('ls'))
-    pprint(exec_cmd(['/bin/ls', '--aaa']))
     pprint(exec_cmd('python --version'))
+    pprint(exec_cmd(['/bin/ls', '--aaa']))
+    pprint(exec_cmd('dmidecode'))
