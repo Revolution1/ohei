@@ -18,3 +18,6 @@ class DIRS(object):
     VAR = _e('DIR_VAR', _j(ROOT, '/var'))
     VAR_RUN = _e('DIR_VAR_RUN', _j(VAR, '/run'))
     HOME = _e('DIR_HOME', _e('HOME', _j(ROOT, '/home')))
+
+
+CPU_PERCENT_INTERVAL = float(_e('CPU_PERCENT_INTERVAL', 0.1))
