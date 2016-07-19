@@ -1,3 +1,4 @@
+import psutil
 from ohei.consts import DIRS
 from ohei.plugins import BasePlugin
 from ohei.utils.hwinfo.host import cpuinfo
@@ -10,30 +11,15 @@ class Plugin(BasePlugin):
 
     def get_value(self):
         data = {}
+        data.update(self._cpu_solid())
         data.update(self._cpu_runtime())
-        data.update(self._solid)  # put calculate process into _cpu_runtime() to save time
         return data
 
-    def _get_stat(self):
-        with open('{proc}/stat'.format(proc=DIRS.PROC), 'r') as f:
-            stat = []
-            for line in f.readlines():
-                if line.startswith('cpu'):
-                    split = line.split()
-                    stat.append((split[0], sum([int(i) for i in split[1:]]), int(split[4])))  # name,total,idle
-            return stat
-
     def _cpu_runtime(self):
-        stat1 = self._get_stat()
-        self._solid = self._cpu_solid()  # do something instead of using time.sleep
-        stat2 = self._get_stat()
-        result = {}
-        for (name, total1, idle1), (_, total2, idle2) in zip(stat1, stat2):
-            result[name] = 1 - (idle2 - idle1) / float(total2 - total1)
         return {
             'percent': {
-                'average': result.pop('cpu'),
-                'per_cpu': result
+                'average': psutil.cpu_percent(),
+                'per_cpu': psutil.cpu_percent(percpu=True)
             }
         }
 
@@ -43,13 +29,9 @@ class Plugin(BasePlugin):
             return cpuinfo.CPUInfoParser(info).parse_items()
 
     def _cpu_solid(self):
-        info = self._get_cpuinfo()
-        core_ids = set()
-        physical_ids = set()
-        logical_cores = len(info)
-        for c in info:
-            core_ids.add(c['core_id'])
-            physical_ids.add(c['physical_id'])
+        ps = self._get_cpuinfo()
+        pc = psutil.cpu_count(logical=False)
+        lc = psutil.cpu_count()
         dmi = self.get_source('dmidecode')
         cpus = 0
         for type, content in dmi:
@@ -57,9 +39,9 @@ class Plugin(BasePlugin):
                 if content.get('Status') == 'Populated, Enabled':
                     cpus += 1
         return {
-            'processors': len(physical_ids),
-            'physical_cores': len(core_ids),
-            'logical_cores': logical_cores,
-            'hyper_threading': logical_cores > len(physical_ids),
+            'processors': ps,
+            'physical_cores': pc,
+            'logical_cores': lc,
+            'hyper_thread': lc > pc,
             'cpus': cpus or 1,
         }
