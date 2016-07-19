@@ -20,7 +20,7 @@ class Plugin(BasePlugin):
             for line in f.readlines():
                 if line.startswith('cpu'):
                     split = line.split()
-                    stat.append((split[0], sum([int(i) for i in split[1:]]), int(split[4])))
+                    stat.append((split[0], sum([int(i) for i in split[1:]]), int(split[4])))  # name,total,idle
             return stat
 
     def _cpu_runtime(self):
@@ -28,8 +28,8 @@ class Plugin(BasePlugin):
         self._solid = self._cpu_solid()  # do something instead of using time.sleep
         stat2 = self._get_stat()
         result = {}
-        for name, total, idle in zip(stat1, stat2):
-            result[name[0]] = 1 - (idle[1] - idle[0]) / float(total[1] - total[0])
+        for (name, total1, idle1), (_, total2, idle2) in zip(stat1, stat2):
+            result[name] = 1 - (idle2 - idle1) / float(total2 - total1)
         return {
             'percent': {
                 'average': result.pop('cpu'),
