@@ -16,10 +16,12 @@ class Plugin(BasePlugin):
         return data
 
     def _cpu_runtime(self):
+        per = psutil.cpu_percent(percpu=True)
+        avg = sum(per) / len(per)
         return {
             'percent': {
-                'average': psutil.cpu_percent(),
-                'per_cpu': psutil.cpu_percent(percpu=True)
+                'average': per,
+                'per_cpu': avg
             }
         }
 
@@ -45,3 +47,8 @@ class Plugin(BasePlugin):
             'hyper_thread': lc > pc,
             'cpus': cpus or 1,
         }
+
+
+if __name__ == '__main__':
+    plugin = Plugin({}, {})
+    print(plugin.get_value())
