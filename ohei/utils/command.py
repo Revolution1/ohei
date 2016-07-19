@@ -12,7 +12,7 @@ def exec_cmd(cmd):
     if proc.returncode == 0:
         return str(out).strip(), str(err).strip()
     else:
-        raise Exception("stderr: %s" % str(err))
+        raise IOError("stderr: %s" % str(err))
 
 
 if __name__ == '__main__':

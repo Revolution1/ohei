@@ -12,5 +12,10 @@ class Source(BaseSource):
         try:
             dmidecode = exec_cmd('dmidecode')
             return parse_dmi(dmidecode)
-        except Exception:
+        except Exception as e:
             return ''
+
+
+if __name__ == '__main__':
+    s = Source()
+    print(s.get_data())
